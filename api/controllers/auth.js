@@ -19,17 +19,16 @@ export const register = async (req, res) => {
   generateToken(res, user._id);
   res.status(202).json({
     id: user._id,
-    username: user.username,
+    name: user.name,
     email: user.email,
     avatar: user.avatar,
-    isAdmin: user.isAdmin,
   });
 };
 
 export const login = async (req, res) => {
-  const { name, password } = req.body;
+  const { email, password } = req.body;
   try {
-    const user = await User.findOne({ name });
+    const user = await User.findOne({ email });
     if (!user) {
       res.status(404);
       throw new Error("User not found");
@@ -42,10 +41,9 @@ export const login = async (req, res) => {
     generateToken(res, user._id);
     res.status(200).json({
       id: user._id,
-      username: user.username,
+      name: user.name,
       email: user.email,
       avatar: user.avatar,
-      isAdmin: user.isAdmin,
     });
   } catch (error) {
     console.log(error);
