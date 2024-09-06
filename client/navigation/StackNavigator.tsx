@@ -14,6 +14,8 @@ import ChatRoom from "../app/layout/ChatRoom";
 import { NavigationContainer } from "@react-navigation/native";
 import { useEffect } from "react";
 import { loadUser } from "../app/redux/slice/authSlice";
+import { colors } from "../app/theme/Colors";
+import { verticalScale } from "../app/utils/guidelineBase";
 
 const StackNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -22,16 +24,40 @@ const StackNavigator = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   useEffect(() => {
     dispatch(loadUser() as any);
-  }, [user]);
+  }, []);
+
   const BottomTabs = () => {
     return (
-      <Tab.Navigator>
+      <Tab.Navigator
+        screenOptions={{
+          tabBarStyle: {
+            backgroundColor: colors.primary,
+            height: verticalScale(60),
+            borderTopRightRadius: 25,
+            borderTopLeftRadius: 25,
+            shadowColor: "black",
+            shadowOffset: {
+              width: 0,
+              height: 2,
+            },
+            elevation: 5,
+          },
+          tabBarActiveTintColor: "white",
+        }}
+      >
         <Tab.Screen
           name="Chats"
           component={ChatsScreen}
           options={{
-            tabBarStyle: { backgroundColor: "#101010" },
+            tabBarActiveTintColor: "white",
             headerShown: false,
+
+            tabBarIcon: ({ focused }) =>
+              focused ? (
+                <Ionicons name="chatbox-outline" size={30} color="white" />
+              ) : (
+                <Ionicons name="chatbox-outline" size={30} color={"#999898"} />
+              ),
           }}
         />
 
@@ -39,13 +65,13 @@ const StackNavigator = () => {
           name="Profile"
           component={ProfileScreen}
           options={{
-            tabBarStyle: { backgroundColor: "#101010" },
             headerShown: false,
+            tabBarActiveTintColor: "white",
             tabBarIcon: ({ focused }) =>
               focused ? (
                 <Ionicons name="person-outline" size={30} color="white" />
               ) : (
-                <Ionicons name="person-outline" size={30} color="#989898" />
+                <Ionicons name="person-outline" size={30} color="#999898" />
               ),
           }}
         />

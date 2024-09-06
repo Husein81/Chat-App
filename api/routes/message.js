@@ -3,7 +3,7 @@ import { getMessages, sendMessage } from "../controllers/message.js";
 
 const router = express.Router();
 
-router.get("/messages", getMessages);
-router.post("/messages", sendMessage);
+router.get("/", getMessages);
+router.post("/", sendMessage);
 
 export default router;

@@ -5,8 +5,9 @@ import {
   StyleSheet,
   Text,
   View,
+  SafeAreaView,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+
 import { moderateScale, verticalScale } from "../utils/guidelineBase";
 import { Button, TextInput } from "react-native-paper";
 import { useState } from "react";
@@ -32,22 +33,22 @@ const LoginScreen = () => {
     navigation.navigate("Register" as never);
   };
 
-  const [loginUser, { isLoading }] = useLoginUserMutation();
+  const [loginUser, { isLoading, error }] = useLoginUserMutation();
 
   const onLoginhandler = async () => {
     try {
-      console.log(email, password);
       const userData = await loginUser({ email, password }).unwrap();
       dispatch(loginUserAction(userData));
       setEmail("");
       setPassword("");
     } catch (error) {
-      Alert.alert(
+      console.log(
         "Error logging in",
-        "An error occurred while registering the user"
+        "An error occurred while logging in the user"
       );
     }
   };
+
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
       <View style={styles.container}>
@@ -94,6 +95,12 @@ const LoginScreen = () => {
             >
               {isLoading ? "Submitting..." : "Login"}
             </Button>
+            {error && (
+              <Text style={styles.errorText}>
+                {error.status}
+                {JSON.stringify(error.data)}
+              </Text>
+            )}
           </View>
           <View>
             <Pressable onPress={navigateHandler}>
@@ -145,5 +152,10 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: 15,
     margin: moderateScale(12),
+  },
+  errorText: {
+    color: "red",
+    textAlign: "center",
+    marginTop: verticalScale(10),
   },
 });
