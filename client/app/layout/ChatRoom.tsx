@@ -7,10 +7,9 @@ import {
   View,
 } from "react-native";
 import { colors } from "../theme/Colors";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { Message } from "../models/Message";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { User } from "../models/User";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
@@ -19,9 +18,8 @@ import {
   useGetMessagesQuery,
   useSendMessageMutation,
 } from "../redux/slice/messageApi";
-import { Button, Icon, TextInput } from "react-native-paper";
-import { horizantalScale, verticalScale } from "../utils/guidelineBase";
-import { get } from "mongoose";
+import { Button, TextInput } from "react-native-paper";
+import { verticalScale } from "../utils/guidelineBase";
 
 type ChatRoomParams = {
   ChatRoom: { name: string; receiverId: string };
@@ -29,6 +27,7 @@ type ChatRoomParams = {
 
 const ChatRoom = () => {
   const navigation = useNavigation();
+  const scrollViewRef = useRef<ScrollView>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState<string>("");
   const user: User | null = useSelector((state: RootState) => state.auth.user);
@@ -41,12 +40,6 @@ const ChatRoom = () => {
   const [sendMessage] = useSendMessageMutation();
 
   // Set messages when fetched
-  useEffect(() => {
-    if (getMessages) {
-      setMessages(getMessages);
-      refetch();
-    }
-  }, [getMessages, messages]);
 
   // Handle incoming new messages via socket
   useEffect(() => {
@@ -55,12 +48,14 @@ const ChatRoom = () => {
     const newMessageHandler = (newMessage: Message) => {
       newMessage.shouldShake = true;
       setMessages((prevMessages) => [...prevMessages, newMessage]);
+      scrollViewRef.current?.scrollToEnd({ animated: true });
     };
+
     socket.on("newMessage", newMessageHandler);
     return () => {
       socket.off("newMessage", newMessageHandler);
     };
-  }, [socket, messages]);
+  }, [socket]);
 
   // Set navigation header
   useEffect(() => {
@@ -89,10 +84,12 @@ const ChatRoom = () => {
       });
       socket?.emit("sendMessage", { senderId, receiverId, message });
       setMessage("");
+      setTimeout(() => {
+        refetch();
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
     } catch (error) {
       console.error(error);
-    } finally {
-      refetch();
     }
   };
 
@@ -103,10 +100,21 @@ const ChatRoom = () => {
       minute: "2-digit",
     });
   };
-
+  useEffect(() => {
+    if (getMessages) {
+      refetch();
+      setMessages(getMessages);
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }
+  }, [message, getMessages, refetch]);
   return (
     <KeyboardAvoidingView style={styles.barContainer}>
-      <ScrollView>
+      <ScrollView
+        ref={scrollViewRef}
+        onContentSizeChange={() =>
+          scrollViewRef.current?.scrollToEnd({ animated: true })
+        }
+      >
         {messages.map((item, index) => (
           <Pressable
             style={[

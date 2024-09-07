@@ -34,7 +34,7 @@ const Chat: FC<Props> = ({ item }) => {
     if (getMessages) {
       setMessages(getMessages);
     }
-  }, [getMessages]);
+  }, []);
 
   const navigateToChat = () => {
     navigation.navigate("ChatRoom", {

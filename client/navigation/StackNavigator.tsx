@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../app/redux/store";
 import ChatsScreen from "../app/layout/ChatScreen";
-import ProfileScreen from "../app/layout/ProfileScreen";
+import UpdatesScreen from "../app/layout/UpdatesScreen";
 import { Ionicons } from "@expo/vector-icons";
 import LoginScreen from "../app/layout/LoginScreen";
 import RegisterScreen from "../app/layout/RegisterScreen";
@@ -56,14 +56,14 @@ const StackNavigator = () => {
               focused ? (
                 <Ionicons name="chatbox-outline" size={30} color="white" />
               ) : (
-                <Ionicons name="chatbox-outline" size={30} color={"#999898"} />
+                <Ionicons name="chatbox-outline" size={30} color={"#989898"} />
               ),
           }}
         />
 
         <Tab.Screen
           name="Profile"
-          component={ProfileScreen}
+          component={UpdatesScreen}
           options={{
             headerShown: false,
             tabBarActiveTintColor: "white",
@@ -71,7 +71,7 @@ const StackNavigator = () => {
               focused ? (
                 <Ionicons name="person-outline" size={30} color="white" />
               ) : (
-                <Ionicons name="person-outline" size={30} color="#999898" />
+                <Ionicons name="person-outline" size={30} color="#989898" />
               ),
           }}
         />

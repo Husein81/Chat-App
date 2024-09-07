@@ -20,12 +20,14 @@ import {
   useAcceptRequestMutation,
   useGetRequestsQuery,
   useGetUserQuery,
+  useRejectRequestMutation, // Import the reject request mutation
 } from "../redux/slice/userApi";
+import { ActivityIndicator } from "react-native-paper";
 
 const ChatsScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const user: User | null = useSelector((state: RootState) => state.auth.user);
+  const { user } = useSelector((state: RootState) => state.auth);
   const [options, setOptions] = useState<string[]>(["chats"]);
   const [chats, setChats] = useState<User[]>([]);
   const [requests, setRequests] = useState<Request[]>([]);
@@ -37,30 +39,35 @@ const ChatsScreen = () => {
       setOptions([...options, option]);
     }
   };
+
   const logoutHandler = () => {
     dispatch(logoutUserAction());
   };
+  const userId = user?._id!;
   const {
     data: userData,
     isLoading: isLoadingUser,
     refetch: refetchUser,
-  } = useGetUserQuery(user?._id!);
+  } = useGetUserQuery(userId!, { skip: !userId });
 
-  const { data, isLoading, refetch } = useGetRequestsQuery(user?._id!);
+  const { data, isLoading, refetch } = useGetRequestsQuery(userId!);
   const [acceptRequest] = useAcceptRequestMutation();
+  const [rejectRequest] = useRejectRequestMutation(); // Add this mutation
 
   const getRequests = async () => {
     try {
       if (data) {
         setRequests(data!);
+        refetch();
       }
     } catch (error) {
       console.error(error);
     }
   };
+
   const acceptRequestHandler = async (requestId: string) => {
     try {
-      const response = await acceptRequest({ requestId, userId: user?._id });
+      const response = await acceptRequest({ requestId, userId: userId });
       console.log("accept", response.data);
       if (response.data) {
         getRequests();
@@ -71,9 +78,10 @@ const ChatsScreen = () => {
       console.error(error);
     }
   };
+
   const rejectRequestHandler = async (requestId: string) => {
     try {
-      const response = await acceptRequest({ requestId, userId: user?._id });
+      const response = await rejectRequest({ requestId, userId: userId }); // Use rejectRequest mutation
       console.log("reject", response.data);
       if (response.data) {
         getRequests();
@@ -89,18 +97,36 @@ const ChatsScreen = () => {
     try {
       if (userData) {
         setChats(userData);
+        refetchUser();
       }
     } catch (error) {
       console.error(error);
     }
   };
   useEffect(() => {
-    if (user?._id) {
+    if (userId) {
+      console.log("userId", userId, data);
+      refetch();
       getRequests();
+    }
+  }, [userId]);
+  useEffect(() => {
+    if (userId) {
+      console.log("userId", userId, userData);
+      refetchUser();
       getUser();
     }
-  });
+  }, [userId]);
+
   const chatLength = chats?.length || 0;
+  if (isLoadingUser || isLoading)
+    return (
+      <ActivityIndicator
+        style={{ flex: 1 }}
+        size={"large"}
+        animating={isLoadingUser || isLoading}
+      />
+    );
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.white }}>
@@ -142,8 +168,9 @@ const ChatsScreen = () => {
           {options?.includes("chats") &&
             (chatLength > 0 ? (
               <View>
-                {chatLength &&
-                  chats.map((item, index) => <Chat item={item} key={index} />)}
+                {chats.map((item, index) => (
+                  <Chat item={item} key={index} />
+                ))}
               </View>
             ) : (
               <View style={styles.emptyState}>
@@ -207,7 +234,9 @@ const ChatsScreen = () => {
     </SafeAreaView>
   );
 };
+
 export default ChatsScreen;
+
 const styles = StyleSheet.create({
   header: {
     padding: moderateScale(10),
@@ -271,9 +300,6 @@ const styles = StyleSheet.create({
     width: horizantalScale(40),
     height: verticalScale(40),
     borderRadius: moderateScale(20),
-  },
-  requestInfo: {
-    flex: 1,
   },
   requestName: {
     fontSize: moderateScale(15),

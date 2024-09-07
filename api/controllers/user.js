@@ -88,9 +88,9 @@ export const acceptRequest = async (req, res) => {
 };
 
 export const rejectRequest = async (req, res) => {
+  console.log("updatedUser");
   try {
-    const { userId } = req.body;
-    const requestId = req.params.requestId;
+    const { requestId, userId } = req.body;
 
     // Find the user who is rejecting the request
     const user = await User.findById(userId);
@@ -106,7 +106,6 @@ export const rejectRequest = async (req, res) => {
       },
       { new: true }
     );
-
     if (!updatedUser) {
       return res.status(404).json({ message: "Request not found" });
     }

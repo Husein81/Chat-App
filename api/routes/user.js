@@ -16,6 +16,6 @@ router.get("/requests/:userId", getRequests);
 
 router.post("/sendRequest", sendRequest);
 router.post("/acceptRequest", acceptRequest);
-router.post("/rejectRequest/:requestId", rejectRequest);
+router.post("/rejectRequest", rejectRequest);
 
 export default router;

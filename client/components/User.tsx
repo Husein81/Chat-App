@@ -11,7 +11,7 @@ type Props = {
 };
 const User: FC<Props> = ({ item }) => {
   const navigation = useNavigation();
-  console.log(item);
+
   const navigateToRequest = () => {
     navigation.navigate("Request", {
       name: item.name,

@@ -13,7 +13,7 @@ export const getApiUri = () => {
   }
 };
 
-export const BASE_URL = getApiUri();
+export const BASE_URL = "http://192.168.0.14:5000/api";
 export const LOGIN_URL = `${BASE_URL}/auth/login`;
 export const REGISTER_URL = `${BASE_URL}/auth/register`;
 export const USER_URL = `${BASE_URL}/user`;

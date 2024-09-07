@@ -52,8 +52,8 @@ const userApi = apiSlice.injectEndpoints({
       }),
     }),
     rejectRequest: builder.mutation({
-      query: ({ requestId, body }) => ({
-        url: `${USER_URL}/rejectRequest/${requestId}`,
+      query: (body) => ({
+        url: `${USER_URL}/rejectRequest`,
         method: "POST",
         body,
       }),
